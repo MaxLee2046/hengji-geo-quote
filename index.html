@@ -1307,7 +1307,17 @@
           if (isBlob) URL.revokeObjectURL(href);
         }, 60000);
       } catch (e) {
-        alert('导出失败：' + (e && e.message ? e.message : String(e)) + '\n\n可尝试：\n1. 等方案页完全显示后再点导出\n2. 换用 Chrome 或 Edge 浏览器\n3. 若仍失败，可直接用浏览器截图保存');
+        const raw = String((e && e.message) ? e.message : e);
+        // 识别受限环境：内嵌预览小窗 / file:// 直接打开 / 跨域拦截
+        let inFrame = false;
+        try { inFrame = (window.self !== window.top); } catch (err) { inFrame = true; }
+        const restricted = inFrame || location.protocol === 'file:'
+          || /cross-origin|Blocked a frame|SecurityError|denied|permission/i.test(raw);
+        if (restricted) {
+          alert('当前页面是在「预览小窗」或受限环境中打开的，浏览器安全策略会拦截图片生成（这是浏览器限制，不是报价器故障）。\n\n请这样使用导出功能：\n1. 复制正式链接，粘贴到浏览器地址栏的新标签页打开：\n   https://maxlee2046.github.io/hengji-geo-quote/\n2. 或下载 HTML 文件后，双击文件用 Chrome/Edge 打开\n\n在正式链接页面中导出图片完全正常。');
+        } else {
+          alert('导出失败：' + raw + '\n\n可尝试：\n1. 等方案页完全显示后再点导出\n2. 换用 Chrome 或 Edge 浏览器\n3. 若仍失败，可直接用浏览器截图保存');
+        }
       } finally {
         btn.disabled = false;
         overlay.classList.remove('show');

@@ -1261,23 +1261,47 @@
         await new Promise(r => requestAnimationFrame(r));
 
         const proposal = document.querySelector('.proposal-page');
+        const w = proposal.scrollWidth || proposal.offsetWidth;
+        const h = proposal.scrollHeight || proposal.offsetHeight;
+        // 按画布总像素自适应缩放，避免超大画布导致内存溢出或下载被浏览器拦截
+        const MAX_PIXELS = 16000000;
+        let scale = 2;
+        if (w * h * scale * scale > MAX_PIXELS) {
+          scale = Math.max(0.5, Math.sqrt(MAX_PIXELS / (w * h)));
+        }
         const canvas = await html2canvas(proposal, {
-          scale: 2,
+          scale: scale,
           backgroundColor: '#f5f8fc',
           useCORS: true,
           logging: false,
-          windowWidth: proposal.scrollWidth,
-          windowHeight: proposal.scrollHeight
+          windowWidth: w,
+          windowHeight: h
         });
 
-        // 转为 PNG 并下载
-        const link = document.createElement('a');
+        // 优先用 Blob 下载（大图远比 dataURL 可靠），失败再退回 dataURL
         const brandName = state.projectName || state.keywordTerms[0] || 'GEO';
-        link.download = brandName + '_GEO报价方案.png';
-        link.href = canvas.toDataURL('image/png');
+        const fileName = brandName + '_GEO报价方案.png';
+        const blob = await new Promise((resolve) => {
+          try { canvas.toBlob(resolve, 'image/png'); }
+          catch (err) { resolve(null); }
+        });
+        let href = null; let isBlob = false;
+        if (blob) { href = URL.createObjectURL(blob); isBlob = true; }
+        else { href = canvas.toDataURL('image/png'); }
+
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = href;
+        link.rel = 'noopener';
+        link.style.display = 'none';
+        document.body.appendChild(link);
         link.click();
+        setTimeout(() => {
+          link.remove();
+          if (isBlob) URL.revokeObjectURL(href);
+        }, 60000);
       } catch (e) {
-        alert('导出失败：' + e.message);
+        alert('导出失败：' + (e && e.message ? e.message : String(e)) + '\n\n可尝试：\n1. 等方案页完全显示后再点导出\n2. 换用 Chrome 或 Edge 浏览器\n3. 若仍失败，可直接用浏览器截图保存');
       } finally {
         btn.disabled = false;
         overlay.classList.remove('show');

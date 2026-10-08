@@ -650,7 +650,7 @@
               <div class="number-wrap"><input id="platforms" class="computed-number" type="text" value="3" readonly tabindex="-1" aria-describedby="platform-note" /><span class="number-suffix">个</span></div>
             </div>
             <div class="field"><label for="keywords">关键词数</label><div class="number-wrap"><input id="keywords" type="number" min="1" max="5" value="1" inputmode="numeric" /><span class="number-suffix">个</span></div></div>
-            <div class="field"><label for="packages">文章权益包</label><div class="number-wrap"><input id="packages" type="number" min="0" max="10" value="0" inputmode="numeric" /><span class="number-suffix">包</span></div><p class="package-note" id="package-note">整单增购，可不选</p></div>
+            <div class="field"><label for="packages">文章权益包</label><div class="number-wrap"><input id="packages" type="number" min="0" value="0" inputmode="numeric" /><span class="number-suffix">包</span></div><p class="package-note" id="package-note">整单增购，可不选</p></div>
           </div>
           <div class="scope-details">
             <section class="platform-selection" aria-labelledby="platform-selection-label">
@@ -947,7 +947,7 @@
       keywordTerms: (savedState && Array.isArray(savedState.keywordTerms))
         ? savedState.keywordTerms.map(t => typeof t === 'string' ? t : '')
         : [''],
-      packages: (savedState && Number.isFinite(savedState.packages)) ? Math.min(10, Math.max(0, savedState.packages)) : 0,
+      packages: (savedState && Number.isFinite(savedState.packages)) ? Math.max(0, Math.floor(savedState.packages)) : 0,
       projectName: (savedState && typeof savedState.projectName === 'string') ? savedState.projectName : ''
     };
     const $ = (id) => document.getElementById(id);
@@ -1060,8 +1060,12 @@
       return Object.keys(industryGroups).find((category) => industryGroups[category].includes(value)) || 'A';
     }
     function clampValue(element) {
-      const min = Number(element.min), max = Number(element.max);
-      const safe = Math.min(max, Math.max(min, Number(element.value) || min));
+      const min = Number(element.min) || 0;
+      // max 属性缺失或为空时视为无上限
+      const maxAttr = element.getAttribute('max');
+      const hasMax = maxAttr !== null && maxAttr.trim() !== '';
+      const max = hasMax ? Number(maxAttr) : Infinity;
+      const safe = Math.min(max, Math.max(min, Math.floor(Number(element.value) || min)));
       element.value = String(safe);
       return safe;
     }
@@ -1199,10 +1203,13 @@
       $(id).addEventListener('input', (event) => {
         const raw = event.target.value.trim();
         const value = Number(raw);
-        const min = Number(event.target.min), max = Number(event.target.max);
+        const min = Number(event.target.min) || 0;
+        const maxAttr = event.target.getAttribute('max');
+        const hasMax = maxAttr !== null && maxAttr.trim() !== '';
+        const max = hasMax ? Number(maxAttr) : Infinity;
         // Do not force a value while the user is clearing/retyping the field.
         if (!raw || !Number.isFinite(value) || value < min || value > max) return;
-        applyNumericState(key, value);
+        applyNumericState(key, Math.floor(value));
       });
       $(id).addEventListener('blur', (event) => applyNumericState(key, clampValue(event.target)));
     });

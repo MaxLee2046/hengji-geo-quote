@@ -162,8 +162,8 @@
     .scope-details { margin-top: 22px; padding-top: 20px; border-top: 1px solid #e6eef8; }
     .platform-selection { padding-bottom: 20px; border-bottom: 1px solid #e6eef8; }
     .platform-selection > .field-label { margin-bottom: 10px; }
-    .platform-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-    .platform-choice { min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 8px; border: 1px solid var(--line); border-radius: 11px; background: var(--white); color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .platform-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 10px; }
+    .platform-choice { min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 6px; border: 1px solid var(--line); border-radius: 11px; background: var(--white); color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; letter-spacing: -.01em; }
     .platform-choice:hover { border-color: #9bb8d6; background: var(--mist); }
     .platform-choice input { width: 15px; height: 15px; margin: 0; accent-color: var(--ink); }
     .platform-note { min-height: 18px; margin: 9px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
@@ -194,7 +194,7 @@
       .wizard-panel { min-height: 0; padding: 25px 20px; }
       .industry-menu { max-height: 45vh; }
       .version-cards, .period-cards, .range-layout { grid-template-columns: 1fr; }
-      .platform-options { grid-template-columns: repeat(2, 1fr); }
+      .platform-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .keyword-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .choice-card { min-height: 72px; }
       .toggle-group.three { grid-template-columns: repeat(3, 1fr); }
@@ -237,8 +237,8 @@
       .platform-selection { padding-bottom: 8px; }
       .platform-selection > .field-label { margin-bottom: 6px; }
       .platform-options { gap: 7px; }
-      .platform-choice { min-height: 38px; padding: 6px; font-size: 11px; }
-      .platform-choice input { width: 13px; height: 13px; }
+      .platform-choice { min-height: 34px; padding: 4px 5px; font-size: 10.5px; gap: 4px; }
+      .platform-choice input { width: 12px; height: 12px; }
       .platform-note { min-height: 14px; margin-top: 5px; font-size: 9px; }
       .keyword-fields { gap: 7px; margin-top: 8px; }
       .keyword-field label { margin-bottom: 4px; font-size: 10px; }
@@ -340,20 +340,20 @@
       .number-wrap input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: auto; margin: 0; }
       .number-suffix { right: 42px; left: auto; }
       .platform-choice {
-        min-height: 38px;
+        min-height: 36px;
         justify-content: center;
-        padding: 0;
-        border-color: transparent;
-        border-radius: 0;
-        background: transparent;
+        padding: 0 4px;
+        border-radius: 9px;
+        font-size: 11.5px;
+        gap: 5px;
       }
       .platform-options {
-        display: flex;
-        justify-content: space-between;
-        gap: 0;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px 12px;
       }
-      .platform-choice { flex: 0 0 auto; }
-      .platform-choice:hover { border-color: transparent; background: transparent; }
+      .platform-choice { min-width: 0; }
+      .platform-choice:hover { border-color: #9bb8d6; background: var(--mist); }
       .keyword-field label { margin-bottom: 12px; font-size: 12px; }
       .keyword-field input[type="text"] { min-height: 38px; }
       .industry-trigger {
@@ -639,7 +639,7 @@
         <section class="wizard-step" data-step-panel="2" hidden>
           <p class="step-kicker">STEP 02 · SERVICE SCOPE</p>
           <h2>确认本次服务范围</h2>
-          <p class="step-copy">基础服务包含至少3个平台；关键词数1-5个；文章权益包为整单增购，每包包含 20 篇文章。</p>
+          <p class="step-copy">基础服务包含至少3个平台，最多可勾选11个；关键词数1-5个；文章权益包为整单增购，每包包含 20 篇文章。</p>
           <div class="field">
             <label for="project-name">方案名称</label>
             <input id="project-name" type="text" placeholder="请输入品牌或方案名称，如：fe金典牙医" autocomplete="off" />
@@ -661,6 +661,12 @@
                 <label class="platform-choice"><input type="checkbox" value="Kimi" checked />Kimi</label>
                 <label class="platform-choice"><input type="checkbox" value="腾讯元宝" />腾讯元宝</label>
                 <label class="platform-choice"><input type="checkbox" value="通义千问" />通义千问</label>
+                <label class="platform-choice"><input type="checkbox" value="文心一言" />文心一言</label>
+                <label class="platform-choice"><input type="checkbox" value="纳米AI" />纳米AI</label>
+                <label class="platform-choice"><input type="checkbox" value="讯飞星火" />讯飞星火</label>
+                <label class="platform-choice"><input type="checkbox" value="百度AI" />百度AI</label>
+                <label class="platform-choice"><input type="checkbox" value="抖音AI" />抖音AI</label>
+                <label class="platform-choice"><input type="checkbox" value="夸克AI" />夸克AI</label>
               </div>
               <p class="platform-note" id="platform-note">已勾选 3 / 3 个平台：豆包、DeepSeek、Kimi</p>
             </section>
@@ -933,9 +939,9 @@
       industry: (savedState && typeof savedState.industry === 'string') ? savedState.industry : '',
       version: (savedState && ['标准版','PRO版'].includes(savedState.version)) ? savedState.version : '标准版',
       period: (savedState && ['季度','半年','年度'].includes(savedState.period)) ? savedState.period : '季度',
-      platforms: (savedState && Number.isFinite(savedState.platforms)) ? Math.min(5, Math.max(3, savedState.platforms)) : 3,
+      platforms: (savedState && Number.isFinite(savedState.platforms)) ? Math.min(11, Math.max(3, savedState.platforms)) : 3,
       platformNames: (savedState && Array.isArray(savedState.platformNames) && savedState.platformNames.length >= 3)
-        ? savedState.platformNames.filter(p => ['豆包','DeepSeek','Kimi','腾讯元宝','通义千问'].includes(p))
+        ? savedState.platformNames.filter(p => ['豆包','DeepSeek','Kimi','腾讯元宝','通义千问','文心一言','纳米AI','讯飞星火','百度AI','抖音AI','夸克AI'].includes(p))
         : ['豆包', 'DeepSeek', 'Kimi'],
       keywords: (savedState && Number.isFinite(savedState.keywords)) ? Math.min(5, Math.max(1, savedState.keywords)) : 1,
       keywordTerms: (savedState && Array.isArray(savedState.keywordTerms))
@@ -1013,7 +1019,7 @@
       state.platformNames = selected;
       state.platforms = selected.length;
       $('platforms').value = String(state.platforms);
-      $('platform-note').textContent = `已勾选 ${selected.length} / 5 个平台：${selected.join('、')}`;
+      $('platform-note').textContent = `已勾选 ${selected.length} / 11 个平台：${selected.join('、')}`;
       saveState();
     }
     platformOptions.addEventListener('change', (event) => {

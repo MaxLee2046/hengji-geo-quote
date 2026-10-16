@@ -547,20 +547,43 @@
       width: 100% !important;
       margin: 0 auto !important;
     }
-    /*  proposal-header 改为 flex 布局 */
-    .proposal-header {
-      display: flex !important;
-      flex-direction: row !important;
-      gap: 40px !important;
-      align-items: flex-start !important;
+    /*  proposal-header 宽屏横向布局（仅宽屏生效，避免移动端文字被挤压成竖排） */
+    @media (min-width: 821px) {
+      .proposal-header {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 40px !important;
+        align-items: flex-start !important;
+      }
+      .proposal-header-left {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+      }
+      .proposal-price-card {
+        flex: 0 0 300px !important;
+        width: 300px !important;
+      }
     }
-    .proposal-header-left {
-      flex: 1 1 auto !important;
-      min-width: 0 !important;
-    }
-    .proposal-price-card {
-      flex: 0 0 300px !important;
-      width: 300px !important;
+    /* 移动端：单列堆叠，价格卡置顶，文字容器占满整宽 */
+    @media (max-width: 820px) {
+      .proposal-header {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        align-items: stretch !important;
+      }
+      .proposal-header-left {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        flex: 0 0 auto !important;
+      }
+      .proposal-price-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 auto !important;
+        order: -1 !important;
+      }
     }
 
     /* 导出按钮 */
@@ -571,6 +594,37 @@
     .export-overlay { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(255,255,255,.8); }
     .export-overlay.show { display: flex; }
     .export-overlay span { padding: 20px 32px; border-radius: 14px; background: var(--ink); color: #fff; font-size: 15px; font-weight: 700; }
+
+    /* 导出模式：强制桌面排版，保证手机与电脑导出的图片格式一致 */
+    body.exporting .proposal-header {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 30px !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
+    body.exporting .proposal-header-left {
+      display: block !important;
+      flex: 1 1 auto !important;
+      width: auto !important;
+      min-width: 0 !important;
+    }
+    body.exporting .proposal-price-card {
+      flex: 0 0 auto !important;
+      width: auto !important;
+      max-width: none !important;
+      order: 0 !important;
+    }
+    body.exporting .equity-grid { grid-template-columns: repeat(4, 1fr) !important; }
+    body.exporting .detail-row { grid-template-columns: 1fr 1fr !important; }
+    body.exporting .scope-grid { grid-template-columns: 1fr 1fr 1fr !important; }
+    body.exporting .path-grid { grid-template-columns: repeat(4, 1fr) !important; }
+    body.exporting .effect-box { flex-direction: row !important; }
+    body.exporting .proposal-footer { flex-direction: row !important; text-align: left !important; }
+    body.exporting .keyword-table { font-size: 12px !important; }
+    body.exporting .keyword-table th,
+    body.exporting .keyword-table td { padding: 10px 12px !important; }
+    body.exporting .proposal-page { padding: 40px 36px !important; }
   </style>
 </head>
 <body>
@@ -1266,6 +1320,7 @@
     $('export-png').addEventListener('click', async () => {
       const btn = $('export-png');
       const overlay = $('export-overlay');
+      let prevInline = null;
       btn.disabled = true;
       overlay.classList.add('show');
 
@@ -1274,6 +1329,19 @@
         await new Promise(r => requestAnimationFrame(r));
 
         const proposal = document.querySelector('.proposal-page');
+        // 导出统一按桌面宽度渲染：避免手机窄屏布局把图片拉成细长条、文字被挤成竖排
+        const EXPORT_WIDTH = 1000;
+        prevInline = {
+          width: proposal.style.getPropertyValue('width'),
+          maxWidth: proposal.style.getPropertyValue('max-width'),
+          widthPrio: proposal.style.getPropertyPriority('width'),
+          maxWidthPrio: proposal.style.getPropertyPriority('max-width')
+        };
+        document.body.classList.add('exporting');
+        // 内联 !important 才能盖住步骤4容器上带 !important 的宽度限制
+        proposal.style.setProperty('width', EXPORT_WIDTH + 'px', 'important');
+        proposal.style.setProperty('max-width', EXPORT_WIDTH + 'px', 'important');
+        await new Promise(r => requestAnimationFrame(r));
         const w = proposal.scrollWidth || proposal.offsetWidth;
         const h = proposal.scrollHeight || proposal.offsetHeight;
         // 按画布总像素自适应缩放，避免超大画布导致内存溢出或下载被浏览器拦截
@@ -1287,7 +1355,7 @@
           backgroundColor: '#f5f8fc',
           useCORS: true,
           logging: false,
-          windowWidth: w,
+          windowWidth: Math.max(w, EXPORT_WIDTH),
           windowHeight: h
         });
 
@@ -1326,6 +1394,17 @@
           alert('导出失败：' + raw + '\n\n可尝试：\n1. 等方案页完全显示后再点导出\n2. 换用 Chrome 或 Edge 浏览器\n3. 若仍失败，可直接用浏览器截图保存');
         }
       } finally {
+        document.body.classList.remove('exporting');
+        // 还原导出时临时加的宽度，避免影响页面正常浏览
+        try {
+          const p = document.querySelector('.proposal-page');
+          if (p && prevInline) {
+            if (prevInline.width) p.style.setProperty('width', prevInline.width, prevInline.widthPrio);
+            else p.style.removeProperty('width');
+            if (prevInline.maxWidth) p.style.setProperty('max-width', prevInline.maxWidth, prevInline.maxWidthPrio);
+            else p.style.removeProperty('max-width');
+          }
+        } catch (err) { /* 忽略还原异常 */ }
         btn.disabled = false;
         overlay.classList.remove('show');
       }

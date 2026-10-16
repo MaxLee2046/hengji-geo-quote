@@ -912,8 +912,8 @@
     const platformAddons = { 标准版: { 季度: 150, 半年: 250, 年度: 500 }, PRO版: { 季度: 400, 半年: 750, 年度: 1500 } };
     const articlePackages = { A: 1000, B: 1000, C: 1500, 'I类医疗': 2500 };
     const benefits = {
-      标准版: { 季度: { visibility: 400, articleGen: 50, articlePublish: 50, report: 2, sentiment: 0 }, 半年: { visibility: 1000, articleGen: 200, articlePublish: 200, report: 3, sentiment: 0 }, 年度: { visibility: 2200, articleGen: 500, articlePublish: 500, report: 10, sentiment: 0 } },
-      PRO版: { 季度: { visibility: 1700, articleGen: 200, articlePublish: 200, report: 2, sentiment: 200 }, 半年: { visibility: 3500, articleGen: 500, articlePublish: 500, report: 5, sentiment: 600 }, 年度: { visibility: 7200, articleGen: 1000, articlePublish: 1000, report: 12, sentiment: 2400 } }
+      标准版: { 季度: { visibility: 400, articleGen: 50, articlePublish: 50, report: 3, sentiment: 0 }, 半年: { visibility: 1000, articleGen: 200, articlePublish: 200, report: 6, sentiment: 0 }, 年度: { visibility: 2200, articleGen: 500, articlePublish: 500, report: 12, sentiment: 0 } },
+      PRO版: { 季度: { visibility: 1700, articleGen: 200, articlePublish: 200, report: 3, sentiment: 200 }, 半年: { visibility: 3500, articleGen: 500, articlePublish: 500, report: 6, sentiment: 600 }, 年度: { visibility: 7200, articleGen: 1000, articlePublish: 1000, report: 12, sentiment: 2400 } }
     };
     const STORAGE_KEY = 'hengji_geo_quote_state_v1';
     function loadSavedState() {
@@ -1099,9 +1099,9 @@
 
       // 核心权益总览
       const totalVis = perKeyword.visibility * state.keywords;
-      const totalGen = perKeyword.articleGen * state.keywords;
+      const totalGen = perKeyword.articleGen * state.keywords + packageArticles;
       const totalPub = totalArticlePublish;
-      const totalRep = perKeyword.report * state.keywords;
+      const totalRep = perKeyword.report;
       $('equity-visibility').textContent = format(totalVis);
       $('equity-gen').textContent = format(totalGen);
       $('equity-publish').textContent = format(totalPub);

@@ -639,7 +639,7 @@
         <section class="wizard-step" data-step-panel="2" hidden>
           <p class="step-kicker">STEP 02 · SERVICE SCOPE</p>
           <h2>确认本次服务范围</h2>
-          <p class="step-copy">基础服务包含至少3个平台，最多可勾选11个；关键词数1-5个；文章权益包为整单增购，每包包含 20 篇文章。</p>
+          <p class="step-copy">基础服务包含至少3个平台，最多可勾选11个；关键词数1-5个；文章权益包为整单增购，每包包含 100 篇文章。</p>
           <div class="field">
             <label for="project-name">方案名称</label>
             <input id="project-name" type="text" placeholder="请输入品牌或方案名称，如：fe金典牙医" autocomplete="off" />
@@ -753,7 +753,7 @@
                 <div class="calc-item">
                   <div class="calc-left">
                     <div class="calc-name">文章权益包小计</div>
-                    <div class="calc-desc" id="calc-package-desc">20 包 × ¥2,000/包 · 共 400 篇</div>
+                    <div class="calc-desc" id="calc-package-desc">2 包 × ¥1,000/包 · 共 200 篇</div>
                   </div>
                   <div class="calc-value" id="calc-package-total">¥ 40,000</div>
                 </div>
@@ -1071,7 +1071,7 @@
     }
     function updateResult() {
       const category = categoryOf(state.industry);
-      const packageArticles = state.packages * 20;
+      const packageArticles = state.packages * 100;
       const perKeyword = benefits[state.version][state.period];
       const totalArticlePublish = perKeyword.articlePublish * state.keywords + packageArticles;
       const unitPrice = basePrices[category][state.version][state.period];
